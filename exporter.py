@@ -9,10 +9,17 @@ from .classes import SpriteSheetExporterType
 from PIL import Image
 
 
-def export(operator: SpriteSheetExporterType, context):
+def export(operator: SpriteSheetExporterType, context, ):
     output_path = context.scene.render.filepath
     if output_path == "/tmp/":
         return {'CANCELLED'}
+    match operator.export_angels:
+        case 1:
+            render_to_sprite(operator.filepath, operator, context)
+    return {'FINISHED'}
+
+def render_to_sprite(path: str,operator: SpriteSheetExporterType, context):
+    output_path = context.scene.render.filepath
     if operator.clear_output_folder:
         for file in get_all_files_of_type(output_path, ".png"):
             os.remove(file)
@@ -27,9 +34,7 @@ def export(operator: SpriteSheetExporterType, context):
         final_image = get_concat_h(final_image, img)
     w, h = final_image.size
     final_image = final_image.crop((resolution[0], 0, w, h))
-    final_image.save(operator.filepath)
-    return {'FINISHED'}
-
+    final_image.save(path)
 
 def get_all_files_of_type(path, t):
     array = []

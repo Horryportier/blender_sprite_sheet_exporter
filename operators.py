@@ -14,8 +14,16 @@ class SpriteSheetExporter(bpy.types.Operator, ExportHelper):
         description="Choose direction One/Four/Eight",
         items=(
             ("1", "One", "exports default direction"),
-            ("4", "Four", "exports 4 directions S/W/N/E"),
-            ("8", "Eight", "exports 8 direction SW/W/NW/N/NE/E/SE"),
+            ("2", "Four", "exports 4 directions S/W/N/E"),
+            ("3", "Eight", "exports 8 direction SW/W/NW/N/NE/E/SE"),
+        ))
+    safe_type: bpy.props.EnumProperty(
+        name="Safe Type",
+        description="Choose wich files to safe",
+        items=(
+            ("packed", "Packed", "Save only final packed sprite"),
+            ("direction", "Direction", "Save only as direction only"),
+            ("all", "All", "Save as packed and direction"),
         ))
     camera_pivot_name: bpy.props.StringProperty(name="Camera Pivot", default="Empty", description="camera pivot which is rotated")
     run_render: bpy.props.BoolProperty(
@@ -30,6 +38,8 @@ class SpriteSheetExporter(bpy.types.Operator, ExportHelper):
     )
 
     def execute(self, context):
+
+        self.report({'INFO'}, "export_angle: {:s} ".format(self.export_angels))
         sprite_sheet_exporter_type = SpriteSheetExporterType()
         sprite_sheet_exporter_type.filepath = self.filepath
         sprite_sheet_exporter_type.run_render = self.run_render
