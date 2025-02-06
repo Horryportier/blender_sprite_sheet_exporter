@@ -3,27 +3,19 @@ schema_version = "1.0.0"
 # Example of manifest file for a Blender extension
 # Change the values according to your extension
 id = "sprite_sheet_exporter"
-version = "0.0.1"
+version = "0.0.5"
 name = "Sprite Sheet Exporter"
 tagline = "Export your spite sheets with ease"
 maintainer = "HorryPortier https://github.com/Horryportier/"
 # Supported types: "add-on", "theme"
 type = "add-on"
 
-# # Optional: link to documentation, support, source files, etc
-# website = "https://extensions.blender.org/add-ons/my-example-package/"
+website = "https://extensions.blender.org/approval-queue/sprite-sheet-exporter/"
 
-# # Optional: tag list defined by Blender and server, see:
-# # https://docs.blender.org/manual/en/dev/advanced/extensions/tags.html
-# tags = ["Animation", "Sequencer"]
+tags = ["Render", "Import-Export"]
 
 blender_version_min = "4.2.0"
-# # Optional: Blender version that the extension does not support, earlier versions are supported.
-# # This can be omitted and defined later on the extensions platform if an issue is found.
-# blender_version_max = "5.1.0"
 
-# License conforming to https://spdx.org/licenses/ (use "SPDX: prefix)
-# https://docs.blender.org/manual/en/dev/advanced/extensions/licenses.html
 license = ["SPDX:GPL-3.0-or-later"]
 # # Optional: required by some licenses.
 # copyright = [
@@ -32,15 +24,14 @@ license = ["SPDX:GPL-3.0-or-later"]
 # ]
 
 # # Optional: list of supported platforms. If omitted, the extension will be available in all operating systems.
-# platforms = ["windows-x64", "macos-arm64", "linux-x64"]
+platforms = ["windows-x64", "linux-x64"]
 # # Other supported platforms: "windows-arm64", "macos-x64"
 
-# # Optional: bundle 3rd party Python modules.
-# # https://docs.blender.org/manual/en/dev/advanced/extensions/python_wheels.html
-# wheels = [
-#   "./wheels/hexdump-3.3-py3-none-any.whl",
-#   "./wheels/jsmin-3.0.1-py3-none-any.whl",
-# ]
+wheels = [
+	"./wheels/pillow-10.3.0-cp311-cp311-macosx_11_0_arm64.whl",
+	"./wheels/pillow-10.3.0-cp311-cp311-manylinux_2_28_x86_64.whl",
+	"./wheels/pillow-10.3.0-cp311-cp311-win_amd64.whl",
+]
 
 # # Optional: add-ons can list which resources they will require:
 # # * files (for access of any filesystem operations)
@@ -56,9 +47,9 @@ license = ["SPDX:GPL-3.0-or-later"]
 # # Keep this a single short sentence without a period (.) at the end.
 # # For longer explanations use the documentation or detail page.
 #
-# [permissions]
+[permissions]
 # network = "Need to sync motion-capture data to server"
-# files = "Import/export FBX from/to disk"
+files = "Import/export  exporting files, clearing output directory"
 # clipboard = "Copy and paste bone transforms"
 
 # # Optional: advanced build settings.
