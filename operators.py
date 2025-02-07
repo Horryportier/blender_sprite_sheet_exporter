@@ -13,9 +13,9 @@ class SpriteSheetExporter(bpy.types.Operator, ExportHelper):
         name="Render Angels",
         description="Choose direction One/Four/Eight",
         items=(
-            ("1", "One", "exports default direction"),
-            ("2", "Four", "exports 4 directions S/W/N/E"),
-            ("3", "Eight", "exports 8 direction SW/W/NW/N/NE/E/SE"),
+            ("one", "One", "exports default direction"),
+            ("four", "Four", "exports 4 directions S/W/N/E"),
+            ("eight", "Eight", "exports 8 direction SW/W/NW/N/NE/E/SE"),
         ))
     safe_type: bpy.props.EnumProperty(
         name="Safe Type",
@@ -25,7 +25,18 @@ class SpriteSheetExporter(bpy.types.Operator, ExportHelper):
             ("direction", "Direction", "Save only as direction only"),
             ("all", "All", "Save as packed and direction"),
         ))
-    camera_pivot_name: bpy.props.StringProperty(name="Camera Pivot", default="Empty", description="camera pivot which is rotated")
+    camera_pivot_name: bpy.props.StringProperty(
+        name="Camera Pivot",
+        default="Empty",
+        description="camera pivot which is rotated")
+    padding_v: bpy.props.IntProperty(
+        name="Padding Vertical",
+        default=0,
+        description="amount of verctial padding in spritesheeet")
+    padding_h: bpy.props.IntProperty(
+        name="Padding Horizontal",
+        default=0,
+        description="amount of horizontal padding in spritesheeet")
     run_render: bpy.props.BoolProperty(
         name="Run Render",
         default=True,
@@ -38,12 +49,13 @@ class SpriteSheetExporter(bpy.types.Operator, ExportHelper):
     )
 
     def execute(self, context):
-
-        self.report({'INFO'}, "export_angle: {:s} ".format(self.export_angels))
         sprite_sheet_exporter_type = SpriteSheetExporterType()
         sprite_sheet_exporter_type.filepath = self.filepath
         sprite_sheet_exporter_type.run_render = self.run_render
         sprite_sheet_exporter_type.clear_output_folder = self.clear_output_folder
         sprite_sheet_exporter_type.export_angels = self.export_angels
         sprite_sheet_exporter_type.camera_pivot_name = self.camera_pivot_name
+        sprite_sheet_exporter_type.safe_type  = self.safe_type
+        sprite_sheet_exporter_type.padding_v = self.padding_v
+        sprite_sheet_exporter_type.padding_h = self.padding_h
         return export(sprite_sheet_exporter_type, context)
