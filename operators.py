@@ -37,6 +37,10 @@ class SpriteSheetExporter(bpy.types.Operator, ExportHelper):
         name="Padding Horizontal",
         default=0,
         description="amount of horizontal padding in spritesheeet")
+    export_normals: bpy.props.BoolProperty(
+        name="Export Normal Map",
+        default=False,
+        description="will render animation as normal map")
     run_render: bpy.props.BoolProperty(
         name="Run Render",
         default=True,
@@ -52,10 +56,11 @@ class SpriteSheetExporter(bpy.types.Operator, ExportHelper):
         sprite_sheet_exporter_type = SpriteSheetExporterType()
         sprite_sheet_exporter_type.filepath = self.filepath
         sprite_sheet_exporter_type.run_render = self.run_render
+        sprite_sheet_exporter_type.export_normals = self.export_normals 
         sprite_sheet_exporter_type.clear_output_folder = self.clear_output_folder
         sprite_sheet_exporter_type.export_angels = self.export_angels
         sprite_sheet_exporter_type.camera_pivot_name = self.camera_pivot_name
-        sprite_sheet_exporter_type.safe_type  = self.safe_type
+        sprite_sheet_exporter_type.safe_type = self.safe_type
         sprite_sheet_exporter_type.padding_v = self.padding_v
         sprite_sheet_exporter_type.padding_h = self.padding_h
         return export(sprite_sheet_exporter_type, context)

@@ -15,32 +15,74 @@ def export(operator: SpriteSheetExporterType, context):
     match operator.export_angels:
         case "one":
             render_to_sprite(operator.filepath, operator, context)
+            if operator.export_normals:
+                old_settings = switch_to_normals_rendering(context)
+                render_to_sprite(get_normal_file_name(operator.filepath),
+                                 operator, context)
+                revert_from_normals_rendering(context, old_settings)
         case "four":
             if camera_pivot == None:
                 return {'CANCELLED'}
             directions = [("S", 0), ("W", 90), ("N", 180), ("E", 270)]
-            render_directionals_to_sprite(directions, camera_pivot, operator, context)
+            render_directionals_to_sprite(directions, camera_pivot, operator,
+                                          context)
         case "eight":
             if camera_pivot == None:
                 return {'CANCELLED'}
-            directions = [("S", 0), ("SW", 45),  ("W", 90), ("NW", 135), ("N", 180), ("NE", 225), ("E", 270), ("SE", 315)]
-            render_directionals_to_sprite(directions, camera_pivot, operator, context)
+            directions = [("S", 0), ("SW", 45), ("W", 90), ("NW", 135),
+                          ("N", 180), ("NE", 225), ("E", 270), ("SE", 315)]
+            render_directionals_to_sprite(directions, camera_pivot, operator,
+                                          context)
     return {'FINISHED'}
 
-def render_directionals_to_sprite(directions: list[(str, int)], camera_pivot, operator: SpriteSheetExporterType, context):
-        dir_file_names = []
-        for direction in directions:
-            camera_pivot.rotation_euler[2] =  math.radians(direction[1])
-            dir_file_name = get_direction_file_name(operator.filepath, direction[0])
-            dir_file_names.append(dir_file_name)
-            render_to_sprite(dir_file_name, operator, context)
-        camera_pivot.rotation_euler[2] = 0
-        if operator.safe_type != "direction":
-            packed = combine_vertical(dir_file_names, operator.padding_v)
-            packed.save(operator.filepath)
-        if operator.safe_type == "packed":
-            for path in dir_file_names:
-                os.remove(path)
+
+def render_directionals_to_sprite(directions: list[(str, int)], camera_pivot,
+                                  operator: SpriteSheetExporterType, context):
+    dir_file_names = []
+    dir_file_names_normal = []
+    for direction in directions:
+        camera_pivot.rotation_euler[2] = math.radians(direction[1])
+        dir_file_name = get_direction_file_name(operator.filepath,
+                                                direction[0])
+        dir_file_name_normal = get_normal_file_name(dir_file_name)
+        dir_file_names.append(dir_file_name)
+        dir_file_names_normal.append(dir_file_name_normal)
+        render_to_sprite(dir_file_name, operator, context)
+        if operator.export_normals:
+            old_settings = switch_to_normals_rendering(context)
+            render_to_sprite(dir_file_name_normal, operator, context)
+            revert_from_normals_rendering(context, old_settings)
+    camera_pivot.rotation_euler[2] = 0
+    if operator.safe_type != "direction":
+        packed = combine_vertical(dir_file_names, operator.padding_v)
+        packed.save(operator.filepath)
+        if operator.export_normals:
+            packed = combine_vertical(dir_file_names_normal,
+                                      operator.padding_v)
+            packed.save(get_normal_file_name(operator.filepath))
+    if operator.safe_type == "packed":
+        for path in dir_file_names:
+            os.remove(path)
+        for path in dir_file_names_normal:
+            os.remove(path)
+
+
+def switch_to_normals_rendering(context):
+    old_settings = {}
+    old_settings["engine"] = context.scene.render.engine
+    context.scene.render.engine = "BLENDER_WORKBENCH"
+    old_settings["light"] = context.scene.display.shading.light
+    context.scene.display.shading.light = "MATCAP"
+    old_settings["studio_light"] = context.scene.display.shading.studio_light
+    context.scene.display.shading.studio_light = "check_normal+y.exr"
+    return old_settings
+
+
+def revert_from_normals_rendering(context, old_settings):
+    context.scene.render.engine = old_settings["engine"]
+    context.scene.display.shading.light = old_settings["light"]
+    context.scene.display.shading.studio_light = "Default"
+
 
 def render_to_sprite(path: str, operator: SpriteSheetExporterType, context):
     output_path = context.scene.render.filepath
@@ -61,6 +103,7 @@ def render_to_sprite(path: str, operator: SpriteSheetExporterType, context):
     final_image = final_image.crop((resolution[0], 0, w, h))
     final_image.save(path)
 
+
 def combine_vertical(paths: list[str], padding: int) -> Image:
     images = []
     for path in paths:
@@ -71,9 +114,10 @@ def combine_vertical(paths: list[str], padding: int) -> Image:
     dst = Image.new('RGBA', resolution)
     for image in images:
         dst = get_concat_v(dst, image, padding)
-    w, h  = dst.size
+    w, h = dst.size
     dst = dst.crop((0, resolution[1], w, h))
     return dst
+
 
 def get_all_files_of_type(path, t):
     array = []
@@ -86,17 +130,23 @@ def get_all_files_of_type(path, t):
     array.sort()
     return array
 
+
 def get_direction_file_name(path: str, direction: str) -> str:
     return path.replace(".png", "_" + direction + ".png")
 
-def get_concat_h(im1, im2, padding = 0):
+
+def get_normal_file_name(path: str) -> str:
+    return path.replace(".png", "_normal" + ".png")
+
+
+def get_concat_h(im1, im2, padding=0):
     dst = Image.new('RGBA', (im1.width + im2.width + padding, im1.height))
     dst.paste(im1, (0, 0))
     dst.paste(im2, (im1.width + padding, 0))
     return dst
 
 
-def get_concat_v(im1, im2, padding = 0):
+def get_concat_v(im1, im2, padding=0):
     dst = Image.new('RGBA', (im1.width, im1.height + im2.height + padding))
     dst.paste(im1, (0, 0))
     dst.paste(im2, (0, im1.height + padding))

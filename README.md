@@ -6,3 +6,4 @@
 2. select output path 
 3. select camera angels, camera pivot, save option, padding
 4. confirm 
+
